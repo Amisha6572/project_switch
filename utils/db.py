@@ -7,6 +7,17 @@ import pandas as pd
 import streamlit as st
 from config import DB_CONFIG
 
+DB_CONFIG = {
+
+      "host": st.secrets["mysql.railway.internal"],
+    "user": st.secrets["root"],
+    "password": st.secrets["KxUqYodTNQJIjIsSegUemjINzpqQriMT"],
+    "database": st.secrets["railway"],
+    "port": st.secrets["33602"],
+    "auth_plugin": "mysql_native_password"
+}
+
+
 @st.cache_resource
 def get_connection_pool():
     return pooling.MySQLConnectionPool(
