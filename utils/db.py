@@ -7,23 +7,28 @@ import pandas as pd
 import streamlit as st
 from config import DB_CONFIG
 
-DB_CONFIG = {
-
-      "host": st.secrets["mysql.railway.internal"],
-    "user": st.secrets["root"],
-    "password": st.secrets["KxUqYodTNQJIjIsSegUemjINzpqQriMT"],
-    "database": st.secrets["railway"],
-    "port": st.secrets["33602"],
-    "auth_plugin": "mysql_native_password"
-}
+# Override with Streamlit secrets if available (Streamlit Cloud deployment)
+def _build_db_config():
+    try:
+        secrets = st.secrets
+        return {
+            "host":     secrets.get("DB_HOST", DB_CONFIG["host"]),
+            "user":     secrets.get("DB_USER", DB_CONFIG["user"]),
+            "password": secrets.get("DB_PASSWORD", DB_CONFIG["password"]),
+            "database": secrets.get("DB_NAME", DB_CONFIG["database"]),
+            "port":     int(secrets.get("DB_PORT", DB_CONFIG["port"])),
+        }
+    except Exception:
+        return DB_CONFIG
 
 
 @st.cache_resource
 def get_connection_pool():
+    cfg = _build_db_config()
     return pooling.MySQLConnectionPool(
         pool_name="mobility_pool",
         pool_size=5,
-        **DB_CONFIG
+        **cfg
     )
 
 def get_conn():
